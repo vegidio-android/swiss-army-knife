@@ -1,0 +1,4 @@
+rootProject.name='Android Army Knife'
+include ':ktx'
+include ':network'
+include ':common'
