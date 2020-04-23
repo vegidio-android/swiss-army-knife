@@ -1,14 +1,15 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-apply plugin: "kotlin-android-extensions"
+apply plugin: "kotlin-kapt"
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "29.0.3"
+    testOptions.unitTests.includeAndroidResources = true
 
     defaultConfig {
         minSdkVersion 28
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
@@ -32,23 +33,31 @@ android {
 }
 
 ext {
-    okhttp_version = "4.5.0"
-    retrofit_version = "2.8.1"
+    kotlinx_version = "1.4.1"
+    moshi_version = "1.11.0"
+    okhttp_version = "4.9.0"
+    retrofit_version = "2.9.0"
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "androidx.appcompat:appcompat:1.1.0"
-    implementation "androidx.core:core-ktx:1.2.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // Common Module
     implementation project(":common")
     testImplementation project(path: ":common", configuration: "testDependencies")
 
+    // Other Modules
+    implementation project(':util')
+
     // Core
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-jackson:$retrofit_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_version"
+
+    // Test
+    testImplementation "com.squareup.moshi:moshi:$moshi_version"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinx_version"
+    testImplementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
 }

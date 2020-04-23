@@ -1,4 +1,4 @@
-rootProject.name='Android Army Knife'
-include ':ktx'
+rootProject.name = 'Android-SAK'
+include ':util'
 include ':network'
 include ':common'
