@@ -2,6 +2,8 @@ package io.vinicius.sak.network
 
 import android.content.Context
 import android.icu.util.TimeUnit
+import android.os.Build
+import androidx.annotation.RequiresApi
 import io.vinicius.sak.util.ktx.toSeconds
 import okhttp3.Cache
 import okhttp3.Interceptor
@@ -15,7 +17,7 @@ import retrofit2.Retrofit
 import kotlin.reflect.KClass
 
 /**
- * Log configuration
+ * Log configuration.
  *
  * @param logger define how the log should be output.
  * @param level  defines the level of information that should be output.
@@ -23,22 +25,28 @@ import kotlin.reflect.KClass
 typealias LogHandler = Pair<Logger, Level>
 
 /**
- * Cache configuration
+ * Cache configuration.
  *
- * @param size the cache size, in bytes.
  * @param time a numeric representation (Long) of time (i.e. 1, 2, 5).
  * @param unit an enumerated representation (TimeUnit) of time (i.e. SECONDS, HOURS, DAYS).
  */
-typealias CacheConfig = Triple<Long, Long, TimeUnit>
+typealias CacheConfig = Pair<Long, TimeUnit>
 
 class RestFactory constructor(private val context: Context)
 {
     var converter: Converter.Factory? = null
     var callAdapter: CallAdapter.Factory? = null
-    var cacheConfig: CacheConfig? = null
     var logHandler: LogHandler? = LogHandler(Logger.DEFAULT, Level.BASIC)
+    var cacheSize: Long = 30 * 1_024 * 1_024
 
-    fun <T: Any> create(klass: KClass<T>, baseUrl: String): T
+    /**
+     * Create a new instance of a properly annotated service interface.
+     *
+     * @param klass the class to be instantiated based on the interface.
+     * @param baseUrl the base URL of the REST endpoints.
+     * @param cacheConfig the configuration information about the cache.
+     */
+    fun <T: Any> create(klass: KClass<T>, baseUrl: String, cacheConfig: CacheConfig? = null): T
     {
         val client = OkHttpClient.Builder()
 
@@ -48,8 +56,8 @@ class RestFactory constructor(private val context: Context)
         }
 
         // Adding cache support
-        cacheConfig?.let { (size, time, unit) ->
-            client.cache(Cache(context.cacheDir, size)).addInterceptor(createCachePolicyInterceptor(time, unit))
+        cacheConfig?.let { (time, unit) ->
+            client.cache(Cache(context.cacheDir, cacheSize)).addInterceptor(createCachePolicyInterceptor(time, unit))
         }
 
         // Initialize Retrofit with the OkHttp client
@@ -78,6 +86,7 @@ class RestFactory constructor(private val context: Context)
         return HttpLoggingInterceptor(logger).apply { setLevel(level) }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun createCachePolicyInterceptor(time: Long, unit: TimeUnit): Interceptor
     {
         val seconds = unit.toSeconds(time)

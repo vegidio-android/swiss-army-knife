@@ -1,6 +1,7 @@
 package io.vinicius.sak.network
 
 import android.content.Context
+import android.icu.util.MeasureUnit
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import com.squareup.moshi.Moshi
@@ -39,7 +40,8 @@ class RestFactoryTest
     @Test
     fun `1- Fetch data about country Brazil`()
     {
-        val service = restFactory.create(CountriesService::class, CountriesService.BASE_URL)
+        val service = restFactory.create(CountriesService::class, CountriesService.BASE_URL,
+            CacheConfig(1, MeasureUnit.DAY))
 
         runBlockingTest {
             val collector = TestCollector.test(this, service.getCountryByCode("BR"))

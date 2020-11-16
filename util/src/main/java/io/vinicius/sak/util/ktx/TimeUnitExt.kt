@@ -1,7 +1,10 @@
 package io.vinicius.sak.util.ktx
 
 import android.icu.util.TimeUnit
+import android.os.Build
+import androidx.annotation.RequiresApi
 
+@RequiresApi(Build.VERSION_CODES.N)
 fun TimeUnit.toSeconds(value: Long): Long
 {
     val numeric = when (this) {
